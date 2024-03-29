@@ -1,10 +1,11 @@
 import serial
-ser = serial.Serial('COM10')  # open serial port
+ser = serial.Serial('/dev/ttyUSB0')  # open serial port
+ser.baudrate = 57600
 ser.flush()
 print(ser.name)         # check which port was really used
-packet = bytearray('test message', 'utf-8')
+packet = 'test now\n'
 print(type(packet))
-s = ser.write(packet)     # write a string
+s = ser.write(packet.encode())     # write a string
 print(packet)
 print("Size, ", s)
 ser.close()  
