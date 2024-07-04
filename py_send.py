@@ -1,40 +1,49 @@
+import can
 import serial
 import json
 import sys
+import time
 
 # File I/O
 port_name = ""
 
-if len(sys.argv) == 1:
-    # default file
-    filename = "data.json"
-elif len(sys.argv) == 2:
-    # input file
-    filename = sys.argv[1]
-elif len(sys.argv) == 3:
-    # arg 3 as port_name but it is optional
-    filename = sys.argv[1]
-    port_name = sys.argv[2]
+if len(sys.argv) == 2:
+    port_name = sys.argv[1]
 else:
-    print("ERROR: INCORRECT INPUT. python3 pySend.py [input_file.json (optional)]")
+    print("ERROR: INCORRECT INPUT. python3 pySend.py [port]")
     exit()
 
+# CAN bus setup
+can_interface = 'can0'  # replace with your CAN interface
+bus = can.interface.Bus(can_interface, bustype='socketcan')
 
-with open(filename) as input_file:
-    try:
-        data = json.load(input_file)
-    except:
-        print("Error opening file: ", input_file)
-        exit()
-# Convert File from file to string, add \n to signal end
-packet = json.dumps(data) + "\n"
+try:
+    with serial.Serial(port_name, baudrate=57600, timeout=10) as ser:
+        ser.flush()
+        print(f"Using port: {ser.name}")  # check which port was really used
 
-ser = serial.Serial(port_name)  # open serial port
-ser.baudrate = 57600
-ser.flush()
-print(ser.name)  # check which port was really used
-print(type(packet))
-s = ser.write(packet.encode())  # write a string
-print(packet)
-print("Size, ", s)
-ser.close()
+        while True:
+            msg = bus.recv()  # receive a CAN message
+
+            # Create a JSON payload from the CAN message
+            can_data = {
+                "timestamp": msg.timestamp,
+                "id": msg.arbitration_id,
+                "data": msg.data.hex()
+            }
+
+            # Convert the dictionary to a JSON string
+            packet = json.dumps(can_data) + "\n"
+            
+            # Send the JSON packet over the serial port
+            s = ser.write(packet.encode())
+            print(f"Packet sent: {packet}")
+            print(f"Size of packet sent: {s} bytes")
+            
+            time.sleep(0.1)  # Adjust the sleep time as necessary
+except serial.SerialException as e:
+    print(f"Serial exception: {e}")
+except can.CanError as e:
+    print(f"CAN bus error: {e}")
+except Exception as e:
+    print(f"Unexpected error: {e}")

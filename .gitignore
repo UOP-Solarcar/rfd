@@ -6,3 +6,4 @@ testRecieve
 testSend
 .vscode/settings.json
 .vscode/tasks.json
+/venv
