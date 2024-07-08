@@ -17,7 +17,7 @@ def main() -> None:
         ser.baudrate = 57600
         while True:
             sys.stdout.buffer.write(ser.readline())
-            sys.stdout.flush()
+            sys.stdout.buffer.flush()
         #out = ser.readline().decode().strip()  # read a '\n' terminated line
 
 
