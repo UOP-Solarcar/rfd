@@ -15,7 +15,8 @@ def main() -> None:
 
     with serial.Serial(port_name) as ser:
         ser.baudrate = 57600
-        print(ser.readline())
+        while True:
+            print(ser.readline())
         #out = ser.readline().decode().strip()  # read a '\n' terminated line
 
 
