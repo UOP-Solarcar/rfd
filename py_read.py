@@ -18,7 +18,7 @@ def main() -> None:
         while True:
             sys.stdout.buffer.write(ser.readline())
             sys.stdout.buffer.flush()
-        #out = ser.readline().decode().strip()  # read a '\n' terminated line
+        # out = ser.readline().decode().strip()  # read a '\n' terminated line
 
 
 if __name__ == "__main__":
